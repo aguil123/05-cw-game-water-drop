@@ -5,8 +5,9 @@ let dropMaker; // Will store our timer that creates drops regularly
 // Water can control variables
 const waterCan = document.getElementById("water-can");
 const gameContainer = document.getElementById("game-container");
-let canX = 375; // Starting x position (center)
-let canY = 550; // Starting y position (near bottom)
+let score = document.getElementById("score");
+let canX = 0;
+let canY = 0;
 const canSpeed = 5; // Pixels per frame
 const canSize = 50;
 
@@ -25,6 +26,19 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   keys[e.key.toLowerCase()] = false;
 });
+
+function positionWaterCan() {
+  const containerWidth = gameContainer.offsetWidth;
+  const containerHeight = gameContainer.offsetHeight;
+
+  canX = Math.max(0, Math.min(containerWidth - canSize, containerWidth / 2 - canSize / 2));
+  canY = Math.max(0, containerHeight - canSize - 20);
+
+  waterCan.style.left = canX + "px";
+  waterCan.style.top = canY + "px";
+}
+
+window.addEventListener("resize", positionWaterCan);
 
 // Game loop for smooth water can movement
 function gameLoop() {
@@ -81,6 +95,7 @@ function updateLasers() {
 }
 
 // Start the game loop
+positionWaterCan();
 gameLoop();
 
 // Wait for button click to start the game
@@ -151,9 +166,8 @@ function createDrop() {
   drop.style.width = drop.style.height = `${size}px`;
 
   // Position the drop randomly across the game width
-  // Subtract 60 pixels to keep drops fully inside the container
-  const gameWidth = document.getElementById("game-container").offsetWidth;
-  const xPosition = Math.random() * (gameWidth - 60);
+  const gameWidth = gameContainer.offsetWidth;
+  const xPosition = Math.random() * Math.max(1, gameWidth - size);
   drop.style.left = xPosition + "px";
 
   // Set the animation duration so the drop falls smoothly
@@ -198,6 +212,7 @@ function checkLaserCollisions(){
       if(detectCollision(laser, drop)){
         //remove the drop from the DOM
         drop.remove();
+        score.textContent = parseInt(score.textContent) + 1; //increment score
 
         //remove the laser from the DOM and the lasers array
         laser.el.remove();
